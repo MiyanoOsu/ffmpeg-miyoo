@@ -55,14 +55,17 @@
 
 #include <SDL.h>
 #include <SDL_thread.h>
+#include <SDL_gfxPrimitives.h>
 
 #include "cmdutils.h"
 
 #include <assert.h>
-
+#include <stdbool.h>
 const char program_name[] = "ffplay";
 const int program_birth_year = 2003;
-
+const char *res[4]={"previous.bmp","next.bmp","play.bmp","pause.bmp"};
+static SDL_Surface *button[4];
+static bool _pause = false;
 #define MAX_QUEUE_SIZE (15 * 1024 * 1024)
 #define MIN_FRAMES 25
 #define EXTERNAL_CLOCK_MIN_FRAMES 2
@@ -315,8 +318,8 @@ static const char *input_filename;
 static const char *window_title;
 static int fs_screen_width;
 static int fs_screen_height;
-static int default_width  = 640;
-static int default_height = 480;
+static int default_width  = 320;
+static int default_height = 240;
 static int screen_width  = 0;
 static int screen_height = 0;
 static int audio_disable;
@@ -363,7 +366,7 @@ static AVPacket flush_pkt;
 #define FF_QUIT_EVENT    (SDL_USEREVENT + 2)
 
 static SDL_Surface *screen;
-
+static double get_clock(Clock *c);
 #if CONFIG_AVFILTER
 static int opt_add_vfilter(void *optctx, const char *opt, const char *arg)
 {
@@ -1284,25 +1287,51 @@ static int video_open(VideoState *is, int force_set_video_mode, Frame *vp)
         av_log(NULL, AV_LOG_FATAL, "SDL: could not set video mode - exiting\n");
         do_exit(is);
     }
-    if (!window_title)
-        window_title = input_filename;
-    SDL_WM_SetCaption(window_title, window_title);
+/*    if (!window_title)
+        window_title = input_filename;*/
+    SDL_WM_SetCaption("ffplay", NULL);
 
     is->width  = screen->w;
     is->height = screen->h;
-
     return 0;
 }
-
+int j=320;
 /* display the current picture, if any */
 static void video_display(VideoState *is)
 {
+	j-=2;
+	if(j<-750)
+		j=320;
     if (!screen)
         video_open(is, 0, NULL);
-    if (is->audio_st && is->show_mode != SHOW_MODE_VIDEO)
+	SDL_Rect des;
+	des.y= 190;
+	des.w=16;
+	des.h=16;
+
+	fill_rectangle(screen,0,0,is->width, is->height,SDL_MapRGB(screen->format,255,255,255),0);
+	fill_rectangle(screen,30,160,260,3,SDL_MapRGB(screen->format,192,192,192),0);
+	stringRGBA(screen, j, 10, input_filename, 0, 0, 0, 255);
+	fill_rectangle(screen,30,160,get_clock(&is->audclk)*260000000/is->ic->duration,3,SDL_MapRGB(screen->format,0,0,0),0);
+
+	for(int i=0;i<2;i++)
+	{
+		des.x=100*i+30;
+	    button[i] = SDL_LoadBMP(res[i]);
+		SDL_BlitSurface(button[i],NULL,screen,&des);
+	}
+	for(int i=2;i<4;i++)
+		button[i] = SDL_LoadBMP(res[i]);
+	des.x=75;
+	if(_pause)
+		SDL_BlitSurface(button[2],NULL,screen,&des);
+	else
+		SDL_BlitSurface(button[3],NULL,screen,&des);
+	SDL_Flip(screen);
+    /*if (is->audio_st && is->show_mode != SHOW_MODE_VIDEO)
         video_audio_display(is);
     else if (is->video_st)
-        video_image_display(is);
+        video_image_display(is);*/
 }
 
 static double get_clock(Clock *c)
@@ -3372,7 +3401,9 @@ static void event_loop(VideoState *cur_stream)
                 break;
             case SDLK_p:
             case SDLK_SPACE:
+				_pause = !_pause;
                 toggle_pause(cur_stream);
+				cur_stream->force_refresh = 1;
                 break;
             case SDLK_m:
                 toggle_mute(cur_stream);
@@ -3796,7 +3827,7 @@ int main(int argc, char **argv)
     signal(SIGINT , sigterm_handler); /* Interrupt (ANSI).    */
     signal(SIGTERM, sigterm_handler); /* Termination (ANSI).  */
 
-    show_banner(argc, argv, options);
+    //show_banner(argc, argv, options);
 
     parse_options(NULL, argc, argv, options, opt_input_file);
 
