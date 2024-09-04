@@ -66,6 +66,7 @@ const int program_birth_year = 2003;
 const char *res[4]={"previous.bmp","next.bmp","play.bmp","pause.bmp"};
 static SDL_Surface *button[4];
 static bool _pause = false;
+static bool _toggle_graph = false;
 #define MAX_QUEUE_SIZE (15 * 1024 * 1024)
 #define MIN_FRAMES 25
 #define EXTERNAL_CLOCK_MIN_FRAMES 2
@@ -367,6 +368,7 @@ static AVPacket flush_pkt;
 
 static SDL_Surface *screen;
 static double get_clock(Clock *c);
+static void toggle_audio_display(VideoState *is);
 #if CONFIG_AVFILTER
 static int opt_add_vfilter(void *optctx, const char *opt, const char *arg)
 {
@@ -1328,6 +1330,11 @@ static void video_display(VideoState *is)
 	SDL_Flip(screen);
 	if (is->audio_st && is->show_mode != SHOW_MODE_VIDEO)
 	   video_audio_display(is);
+	if(!_toggle_graph)
+	{
+		toggle_audio_display(is);
+		_toggle_graph = true;
+	}
     /*else if (is->video_st)
         video_image_display(is);*/
 }
