@@ -1056,7 +1056,7 @@ static void video_audio_display(VideoState *s)
         /* total height for one channel */
         h = s->height / nb_display_channels;
         /* graph height / 2 */
-        h2 = (h * 9) / 20;
+        h2 = (h * 9) / 10;
         for (ch = 0; ch < nb_display_channels; ch++) {
             i = i_start + ch;
             y1 = 150;//s->ytop + ch * h + (h / 2); /* position of center line */
@@ -1066,11 +1066,9 @@ static void video_audio_display(VideoState *s)
                     y = -y;
                     ys = y1 - y;
                 } else {
-					ys = y1 - y;
+					ys = y1 - y; //ys = y1;
                 }
-                fill_rectangle(screen,
-                               s->xleft + x, ys, 1, y,
-                               fgcolor, 0);
+                fill_rectangle(screen, s->xleft + x, ys, 1, y, fgcolor, 0);
                 i += channels;
                 if (i >= SAMPLE_ARRAY_SIZE)
                     i -= SAMPLE_ARRAY_SIZE;
@@ -3396,7 +3394,8 @@ static void event_loop(VideoState *cur_stream)
                 break;
             }
             switch (event.key.keysym.sym) {
-            case SDLK_ESCAPE:
+            //case SDLK_ESCAPE:
+			case SDLK_RCTRL:
             case SDLK_q:
                 do_exit(cur_stream);
                 break;
@@ -3405,20 +3404,24 @@ static void event_loop(VideoState *cur_stream)
                 cur_stream->force_refresh = 1;
                 break;
             case SDLK_p:
-            case SDLK_SPACE:
+            //case SDLK_SPACE:
+			case SDLK_LALT:
 				_pause = !_pause;
                 toggle_pause(cur_stream);
 				cur_stream->force_refresh = 1;
                 break;
             case SDLK_m:
+			case SDLK_LCTRL:
                 toggle_mute(cur_stream);
                 break;
             case SDLK_KP_MULTIPLY:
             case SDLK_0:
+			case SDLK_BACKSPACE:
                 update_volume(cur_stream, 1, SDL_VOLUME_STEP);
                 break;
             case SDLK_KP_DIVIDE:
             case SDLK_9:
+			case SDLK_TAB:
                 update_volume(cur_stream, -1, SDL_VOLUME_STEP);
                 break;
             case SDLK_s: // S: Step to next frame
