@@ -1045,13 +1045,11 @@ static void video_audio_display(VideoState *s)
         i_start = s->last_i_start;
     }
 
-    bgcolor = SDL_MapRGB(screen->format, 0x00, 0x00, 0x00);
+    bgcolor = SDL_MapRGB(screen->format, 0xff, 0xff, 0xff);
     if (s->show_mode == SHOW_MODE_WAVES) {
-        fill_rectangle(screen,
-                       s->xleft, s->ytop, s->width, s->height,
-                       bgcolor, 0);
+        //fill_rectangle(screen,s->xleft, s->ytop, s->width, s->height,bgcolor, 0);
 
-        fgcolor = SDL_MapRGB(screen->format, 0xff, 0xff, 0xff);
+        fgcolor = SDL_MapRGB(screen->format, 0x00, 0x00, 0x00);
 
         /* total height for one channel */
         h = s->height / nb_display_channels;
@@ -1059,14 +1057,14 @@ static void video_audio_display(VideoState *s)
         h2 = (h * 9) / 20;
         for (ch = 0; ch < nb_display_channels; ch++) {
             i = i_start + ch;
-            y1 = s->ytop + ch * h + (h / 2); /* position of center line */
-            for (x = 0; x < s->width; x++) {
+            y1 = 150;//s->ytop + ch * h + (h / 2); /* position of center line */
+            for (x = 50; x < 320-50; x++) {
                 y = (s->sample_array[i] * h2) >> 15;
                 if (y < 0) {
                     y = -y;
                     ys = y1 - y;
                 } else {
-                    ys = y1;
+					ys = y1 - y;
                 }
                 fill_rectangle(screen,
                                s->xleft + x, ys, 1, y,
@@ -1077,16 +1075,16 @@ static void video_audio_display(VideoState *s)
             }
         }
 
-        fgcolor = SDL_MapRGB(screen->format, 0x00, 0x00, 0xff);
+        /*fgcolor = SDL_MapRGB(screen->format, 0x00, 0x00, 0x00);
 
         for (ch = 1; ch < nb_display_channels; ch++) {
             y = s->ytop + ch * h;
             fill_rectangle(screen,
                            s->xleft, y, s->width, 1,
                            fgcolor, 0);
-        }
+        }*/
         SDL_UpdateRect(screen, s->xleft, s->ytop, s->width, s->height);
-    } else {
+    }/* else {
         nb_display_channels= FFMIN(nb_display_channels, 2);
         if (rdft_bits != s->rdft_bits) {
             av_rdft_end(s->rdft);
@@ -1114,7 +1112,7 @@ static void video_audio_display(VideoState *s)
             }
             /* Least efficient way to do this, we should of course
              * directly access it but it is more than fast enough. */
-            for (y = 0; y < s->height; y++) {
+            /*for (y = 0; y < s->height; y++) {
                 double w = 1 / sqrt(nb_freq);
                 int a = sqrt(w * hypot(data[0][2 * y + 0], data[0][2 * y + 1]));
                 int b = (nb_display_channels == 2 ) ? sqrt(w * hypot(data[1][2 * y + 0], data[1][2 * y + 1]))
@@ -1133,7 +1131,7 @@ static void video_audio_display(VideoState *s)
             s->xpos++;
         if (s->xpos >= s->width)
             s->xpos= s->xleft;
-    }
+    }*/
 }
 
 static void stream_component_close(VideoState *is, int stream_index)
@@ -1305,14 +1303,14 @@ static void video_display(VideoState *is)
     if (!screen)
         video_open(is, 0, NULL);
 	SDL_Rect des;
-	des.y= 190;
+	des.y= 200;
 	des.w=16;
 	des.h=16;
 
 	fill_rectangle(screen,0,0,is->width, is->height,SDL_MapRGB(screen->format,255,255,255),0);
-	fill_rectangle(screen,30,160,260,3,SDL_MapRGB(screen->format,192,192,192),0);
-	stringRGBA(screen, j, 10, input_filename, 0, 0, 0, 255);
-	fill_rectangle(screen,30,160,get_clock(&is->audclk)*260000000/is->ic->duration,3,SDL_MapRGB(screen->format,0,0,0),0);
+	fill_rectangle(screen,30,180,260,3,SDL_MapRGB(screen->format,192,192,192),0);
+	stringRGBA(screen, j, 15, input_filename, 0, 0, 0, 255);
+	fill_rectangle(screen,30,180,get_clock(&is->audclk)*260000000/is->ic->duration,3,SDL_MapRGB(screen->format,0,0,0),0);
 
 	for(int i=0;i<2;i++)
 	{
@@ -1322,15 +1320,15 @@ static void video_display(VideoState *is)
 	}
 	for(int i=2;i<4;i++)
 		button[i] = SDL_LoadBMP(res[i]);
-	des.x=75;
+	des.x=80;
 	if(_pause)
 		SDL_BlitSurface(button[2],NULL,screen,&des);
 	else
 		SDL_BlitSurface(button[3],NULL,screen,&des);
 	SDL_Flip(screen);
-    /*if (is->audio_st && is->show_mode != SHOW_MODE_VIDEO)
-        video_audio_display(is);
-    else if (is->video_st)
+	if (is->audio_st && is->show_mode != SHOW_MODE_VIDEO)
+	   video_audio_display(is);
+    /*else if (is->video_st)
         video_image_display(is);*/
 }
 
