@@ -1051,7 +1051,7 @@ static void video_audio_display(VideoState *s)
     if (s->show_mode == SHOW_MODE_WAVES) {
         //fill_rectangle(screen,s->xleft, s->ytop, s->width, s->height,bgcolor, 0);
 
-        fgcolor = SDL_MapRGB(screen->format, 0x00, 0x00, 0x00);
+        fgcolor = SDL_MapRGB(screen->format, 0x00, 0x6d, 0x9b);
 
         /* total height for one channel */
         h = s->height / nb_display_channels;
@@ -1068,7 +1068,7 @@ static void video_audio_display(VideoState *s)
                 } else {
 					ys = y1 - y; //ys = y1;
                 }
-                fill_rectangle(screen, s->xleft + x, ys, 1, y, fgcolor, 0);
+                fill_rectangle(screen, s->xleft + x, ys, 4, y, fgcolor, 0);
                 i += channels;
                 if (i >= SAMPLE_ARRAY_SIZE)
                     i -= SAMPLE_ARRAY_SIZE;
