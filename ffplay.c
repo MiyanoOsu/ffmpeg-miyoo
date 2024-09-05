@@ -3427,6 +3427,7 @@ static void event_loop(VideoState *cur_stream)
 			case SDLK_LCTRL:
                 toggle_mute(cur_stream);
 				_mute = !_mute;
+				cur_stream->force_refresh = 1;
                 break;
             case SDLK_KP_MULTIPLY:
             case SDLK_0:
