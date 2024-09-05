@@ -63,10 +63,11 @@
 #include <stdbool.h>
 const char program_name[] = "ffplay";
 const int program_birth_year = 2003;
-const char *res[4]={"previous.bmp","next.bmp","play.bmp","pause.bmp"};
+const char *res[6]={"previous.bmp","next.bmp","play.bmp","pause.bmp","volume.bmp","mute.bmp"};
 static SDL_Surface *button[4];
 static bool _pause = false;
 static bool _toggle_graph = false;
+static bool _mute = false;
 #define MAX_QUEUE_SIZE (15 * 1024 * 1024)
 #define MIN_FRAMES 25
 #define EXTERNAL_CLOCK_MIN_FRAMES 2
@@ -1293,6 +1294,10 @@ static int video_open(VideoState *is, int force_set_video_mode, Frame *vp)
     is->height = screen->h;
     return 0;
 }
+static void loadButton() {
+	for(int i =0;i<6;i++)
+		button[i] = SDL_LoadBMP(res[i]);
+}
 int j=320;
 /* display the current picture, if any */
 static void video_display(VideoState *is)
@@ -1311,28 +1316,36 @@ static void video_display(VideoState *is)
 	fill_rectangle(screen,30,180,260,3,SDL_MapRGB(screen->format,192,192,192),0);
 	stringRGBA(screen, j, 160, input_filename, 0, 0, 0, 255);
 	fill_rectangle(screen,30,180,get_clock(&is->audclk)*260000000/is->ic->duration,3,SDL_MapRGB(screen->format,0,0,0),0);
-
+	
 	for(int i=0;i<2;i++)
 	{
 		des.x=100*i+30;
-	    button[i] = SDL_LoadBMP(res[i]);
 		SDL_BlitSurface(button[i],NULL,screen,&des);
 	}
-	for(int i=2;i<4;i++)
-		button[i] = SDL_LoadBMP(res[i]);
+
 	des.x=80;
 	if(_pause)
 		SDL_BlitSurface(button[2],NULL,screen,&des);
 	else
 		SDL_BlitSurface(button[3],NULL,screen,&des);
+
+	des.x = 180;
+		if(!_mute)
+			SDL_BlitSurface(button[4],NULL,screen,&des);
+		else
+			SDL_BlitSurface(button[5],NULL,screen,&des);
+
 	SDL_Flip(screen);
+
 	if (is->audio_st && is->show_mode != SHOW_MODE_VIDEO)
 	   video_audio_display(is);
+
 	if(!_toggle_graph)
 	{
 		toggle_audio_display(is);
 		_toggle_graph = true;
 	}
+
     /*else if (is->video_st)
         video_image_display(is);*/
 }
@@ -3413,6 +3426,7 @@ static void event_loop(VideoState *cur_stream)
             case SDLK_m:
 			case SDLK_LCTRL:
                 toggle_mute(cur_stream);
+				_mute = !_mute;
                 break;
             case SDLK_KP_MULTIPLY:
             case SDLK_0:
@@ -3895,7 +3909,7 @@ int main(int argc, char **argv)
         av_log(NULL, AV_LOG_FATAL, "Failed to initialize VideoState!\n");
         do_exit(NULL);
     }
-
+	loadButton();
     event_loop(is);
 
     /* never returns */
