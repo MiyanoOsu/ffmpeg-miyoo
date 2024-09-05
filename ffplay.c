@@ -1309,7 +1309,7 @@ static void video_display(VideoState *is)
 
 	fill_rectangle(screen,0,0,is->width, is->height,SDL_MapRGB(screen->format,255,255,255),0);
 	fill_rectangle(screen,30,180,260,3,SDL_MapRGB(screen->format,192,192,192),0);
-	stringRGBA(screen, j, 15, input_filename, 0, 0, 0, 255);
+	stringRGBA(screen, j, 160, input_filename, 0, 0, 0, 255);
 	fill_rectangle(screen,30,180,get_clock(&is->audclk)*260000000/is->ic->duration,3,SDL_MapRGB(screen->format,0,0,0),0);
 
 	for(int i=0;i<2;i++)
