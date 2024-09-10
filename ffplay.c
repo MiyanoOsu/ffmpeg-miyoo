@@ -64,7 +64,7 @@
 const char program_name[] = "ffplay";
 const int program_birth_year = 2003;
 const char *res[6]={"previous.bmp","next.bmp","play.bmp","pause.bmp","volume.bmp","mute.bmp"};
-static SDL_Surface *button[4];
+static SDL_Surface *button[6];
 static bool _pause = false;
 static bool _toggle_graph = false;
 static bool _mute = false;
