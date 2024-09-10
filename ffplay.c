@@ -1050,7 +1050,7 @@ static void video_audio_display(VideoState *s)
 
     bgcolor = SDL_MapRGB(screen->format, 0xff, 0xff, 0xff);
     if (s->show_mode == SHOW_MODE_WAVES) {
-        //fill_rectangle(screen,s->xleft, s->ytop, s->width, s->height,bgcolor, 0);
+        fill_rectangle(screen,320, 160, s->width, s->height,bgcolor, 0);
 
         fgcolor = SDL_MapRGB(screen->format, 0x00, 0x6d, 0x9b);
 
@@ -1258,7 +1258,7 @@ static void set_default_window_size(int width, int height, AVRational sar)
 
 static int video_open(VideoState *is, int force_set_video_mode, Frame *vp)
 {
-    int flags = SDL_HWSURFACE | SDL_ASYNCBLIT | SDL_HWACCEL;
+    int flags = SDL_SWSURFACE;// | SDL_ASYNCBLIT | SDL_HWACCEL;
     int w,h;
 
     if (is_full_screen) flags |= SDL_FULLSCREEN;
@@ -1303,7 +1303,7 @@ int j=320;
 static void video_display(VideoState *is)
 {
 	j-=2;
-	if(j<-750)
+	if(j<-700)
 		j=320;
     if (!screen)
         video_open(is, 0, NULL);
@@ -1316,7 +1316,9 @@ static void video_display(VideoState *is)
 	fill_rectangle(screen,30,180,260,3,SDL_MapRGB(screen->format,192,192,192),0);
 	stringRGBA(screen, j, 160, input_filename, 0, 0, 0, 255);
 	fill_rectangle(screen,30,180,get_clock(&is->audclk)*260000000/is->ic->duration,3,SDL_MapRGB(screen->format,0,0,0),0);
-	
+	if(get_clock(&is->audclk)>is->ic->duration/1000000)
+		do_exit(is);
+		
 	for(int i=0;i<2;i++)
 	{
 		des.x=100*i+30;
