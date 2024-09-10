@@ -1050,9 +1050,9 @@ static void video_audio_display(VideoState *s)
 
     bgcolor = SDL_MapRGB(screen->format, 0xff, 0xff, 0xff);
     if (s->show_mode == SHOW_MODE_WAVES) {
-        //fill_rectangle(screen,320, 160, s->width, s->height,bgcolor, 0);
+        fill_rectangle(screen,320, 160, s->width, s->height,bgcolor, 0);
 
-        fgcolor = SDL_MapRGB(screen->format, 0x00, 0x6d, 0x9b);
+        fgcolor = SDL_MapRGB(screen->format, 0x00, 0xc0, 0x32);
 
         /* total height for one channel */
         h = s->height / nb_display_channels;
@@ -1315,7 +1315,7 @@ static void video_display(VideoState *is)
 	fill_rectangle(screen,0,0,is->width, is->height,SDL_MapRGB(screen->format,255,255,255),0);
 	fill_rectangle(screen,30,180,260,3,SDL_MapRGB(screen->format,192,192,192),0);
 	stringRGBA(screen, j, 160, input_filename, 0, 0, 0, 255);
-	fill_rectangle(screen,30,180,get_clock(&is->audclk)*260000000/is->ic->duration,3,SDL_MapRGB(screen->format,0,0,0),0);
+	fill_rectangle(screen,30,180,get_clock(&is->audclk)*260000000/is->ic->duration,3,SDL_MapRGB(screen->format,0,192,50),0);
 	if(get_clock(&is->audclk)>is->ic->duration/1000000)
 		do_exit(is);
 		
