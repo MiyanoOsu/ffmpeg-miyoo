@@ -1050,7 +1050,7 @@ static void video_audio_display(VideoState *s)
 
     bgcolor = SDL_MapRGB(screen->format, 0xff, 0xff, 0xff);
     if (s->show_mode == SHOW_MODE_WAVES) {
-        fill_rectangle(screen,320, 160, s->width, s->height,bgcolor, 0);
+        //fill_rectangle(screen,320, 160, s->width, s->height,bgcolor, 0);
 
         fgcolor = SDL_MapRGB(screen->format, 0x00, 0xc0, 0x32);
 
