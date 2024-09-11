@@ -1391,10 +1391,12 @@ static void video_display(VideoState *is)
 		else
 			SDL_BlitSurface(button[5],NULL,screen,&des);
 
-	SDL_Flip(screen);
-
 	if (is->audio_st && is->show_mode != SHOW_MODE_VIDEO)
 	   video_audio_display(is);
+	
+	SDL_Flip(screen);
+	SDL_FreeSurface(screen);
+	//SDL_Delay(1000/60);
 
 	if(!_toggle_graph)
 	{
