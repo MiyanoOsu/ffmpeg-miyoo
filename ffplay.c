@@ -30,7 +30,6 @@
 #include <signal.h>
 #include <stdint.h>
 #include <fcntl.h>
-#include <string.h>
 
 #include "libavutil/avstring.h"
 #include "libavutil/eval.h"
