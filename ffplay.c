@@ -29,6 +29,8 @@
 #include <limits.h>
 #include <signal.h>
 #include <stdint.h>
+#include <fcntl.h>
+#include <string.h>
 
 #include "libavutil/avstring.h"
 #include "libavutil/eval.h"
@@ -68,6 +70,11 @@ static SDL_Surface *button[6];
 static bool _pause = false;
 static bool _toggle_graph = false;
 static bool _mute = false;
+static bool _screen_off = false;
+
+#define MIYOO_LID_FILE  "/mnt/.backlight.conf"
+#define MIYOO_LID_CONF  "/sys/class/backlight/backlight/brightness"
+
 #define MAX_QUEUE_SIZE (15 * 1024 * 1024)
 #define MIN_FRAMES 25
 #define EXTERNAL_CLOCK_MIN_FRAMES 2
@@ -1294,6 +1301,54 @@ static int video_open(VideoState *is, int force_set_video_mode, Frame *vp)
     is->height = screen->h;
     return 0;
 }
+static int read_conf(const char *file) {
+  int i, fd;
+  int val = 5;
+  char buf[10]={0};
+  
+  fd = open(file, O_RDWR);
+  if(fd < 0){
+    val = -1;
+  }
+  else{
+    read(fd, buf, sizeof(buf));
+    for(i=0; i<strlen(buf); i++){
+      if(buf[i] == '\r'){
+        buf[i] = 0;
+      }
+      if(buf[i] == '\n'){
+        buf[i] = 0;
+      }
+      if(buf[i] == ' '){
+        buf[i] = 0;
+      }
+    }
+    val = atoi(buf);
+  }
+  close(fd);
+  return val;
+}
+
+void screen_off() {
+	FILE *f;
+	if ((f = fopen(MIYOO_LID_CONF, "w"))) {
+    	fprintf(f, "0\n");
+    	fclose(f);
+  }
+}
+
+void screen_on() {
+	int val;
+	FILE *f;
+  	char buf[3]={0};
+	val = read_conf(MIYOO_LID_FILE);
+	if (f = fopen(MIYOO_LID_CONF, "w")) {
+    	sprintf(buf, "%d\n", val);
+		fprintf(f, buf);
+		fclose(f);
+	}
+}
+
 static void loadButton() {
 	for(int i =0;i<6;i++)
 		button[i] = SDL_LoadBMP(res[i]);
@@ -3418,8 +3473,14 @@ static void event_loop(VideoState *cur_stream)
                 toggle_full_screen(cur_stream);
                 cur_stream->force_refresh = 1;
                 break;
+			case SDLK_SPACE:
+				if(_screen_off)
+					screen_off();
+				else
+					screen_on();
+				_screen_off = !_screen_off;
+				break;
             case SDLK_p:
-            //case SDLK_SPACE:
 			case SDLK_LALT:
 				_pause = !_pause;
                 toggle_pause(cur_stream);
