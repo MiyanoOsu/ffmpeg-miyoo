@@ -3473,11 +3473,11 @@ static void event_loop(VideoState *cur_stream)
                 cur_stream->force_refresh = 1;
                 break;
 			case SDLK_SPACE:
+				_screen_off = !_screen_off;
 				if(_screen_off)
 					screen_off();
 				else
 					screen_on();
-				_screen_off = !_screen_off;
 				break;
             case SDLK_p:
 			case SDLK_LALT:
