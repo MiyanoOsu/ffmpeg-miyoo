@@ -1361,51 +1361,53 @@ static void video_display(VideoState *is)
 		j=320;
     if (!screen)
         video_open(is, 0, NULL);
-	SDL_Rect des;
-	des.y= 200;
-	des.w=16;
-	des.h=16;
+    if (is->audio_st && is->show_mode != SHOW_MODE_VIDEO)
+    {
+    	SDL_Rect des;
+        des.y= 200;
+        des.w=16;
+        des.h=16;
 
-	fill_rectangle(screen,0,0,is->width, is->height,SDL_MapRGB(screen->format,255,255,255),0);
-	fill_rectangle(screen,30,180,260,3,SDL_MapRGB(screen->format,192,192,192),0);
-	stringRGBA(screen, j, 160, input_filename, 0, 0, 0, 255);
-	fill_rectangle(screen,30,180,get_clock(&is->audclk)*260000000/is->ic->duration,3,SDL_MapRGB(screen->format,0,192,50),0);
-	if(get_clock(&is->audclk)>is->ic->duration/1000000)
-		do_exit(is);
-		
-	for(int i=0;i<2;i++)
-	{
-		des.x=100*i+30;
-		SDL_BlitSurface(button[i],NULL,screen,&des);
-	}
+        fill_rectangle(screen,0,0,is->width, is->height,SDL_MapRGB(screen->format,255,255,255),0);
+        fill_rectangle(screen,30,180,260,3,SDL_MapRGB(screen->format,192,192,192),0);
+        stringRGBA(screen, j, 160, input_filename, 0, 0, 0, 255);
+        fill_rectangle(screen,30,180,get_clock(&is->audclk)*260000000/is->ic->duration,3,SDL_MapRGB(screen->format,0,192,50),0);
+        if(get_clock(&is->audclk)>is->ic->duration/1000000)
+            do_exit(is);
+            
+        for(int i=0;i<2;i++)
+        {
+            des.x=100*i+30;
+            SDL_BlitSurface(button[i],NULL,screen,&des);
+        }
 
-	des.x=80;
-	if(_pause)
-		SDL_BlitSurface(button[2],NULL,screen,&des);
-	else
-		SDL_BlitSurface(button[3],NULL,screen,&des);
+        des.x=80;
+        if(_pause)
+            SDL_BlitSurface(button[2],NULL,screen,&des);
+        else
+            SDL_BlitSurface(button[3],NULL,screen,&des);
 
-	des.x = 180;
-		if(!_mute)
-			SDL_BlitSurface(button[4],NULL,screen,&des);
-		else
-			SDL_BlitSurface(button[5],NULL,screen,&des);
+        des.x = 180;
+            if(!_mute)
+                SDL_BlitSurface(button[4],NULL,screen,&des);
+            else
+                SDL_BlitSurface(button[5],NULL,screen,&des);
 
-	if (is->audio_st && is->show_mode != SHOW_MODE_VIDEO)
-	   video_audio_display(is);
-	
-	SDL_Flip(screen);
-	SDL_FreeSurface(screen);
-	//SDL_Delay(1000/60);
+        
+        video_audio_display(is);
+        
+        SDL_Flip(screen);
+        SDL_FreeSurface(screen);
+        //SDL_Delay(1000/60);
 
-	if(!_toggle_graph)
-	{
-		toggle_audio_display(is);
-		_toggle_graph = true;
-	}
-
-    /*else if (is->video_st)
-        video_image_display(is);*/
+        if(!_toggle_graph)
+        {
+            toggle_audio_display(is);
+            _toggle_graph = true;
+        }    
+    }    
+    else if (is->video_st)
+        video_image_display(is);
 }
 
 static double get_clock(Clock *c)
